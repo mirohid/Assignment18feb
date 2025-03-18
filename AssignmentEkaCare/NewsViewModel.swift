@@ -12,18 +12,41 @@ import RealmSwift
 class NewsViewModel: ObservableObject {
     @Published var articles: [NewsItem] = []
     @Published var savedArticles: [NewsArticle] = []
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
+    @Published var showAlert = false
+    @Published var alertTitle = ""
+    @Published var alertMessage = ""
     
     private let apiService = NewsAPIService()
     private let realm = try! Realm()
     
     init() {
+        print("NewsViewModel initialized")
         fetchNews(query: "apple")
         fetchSavedArticles()
     }
     
     func fetchNews(query: String) {
+        isLoading = true
+        errorMessage = nil
+        print("Fetching news for query: \(query)")
+        
         apiService.fetchNews(query: query) { [weak self] fetchedArticles in
-            self?.articles = fetchedArticles
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                self?.articles = fetchedArticles
+                print("Fetched \(fetchedArticles.count) articles")
+                
+                if fetchedArticles.isEmpty {
+                    self?.showAlert("No Results", "No articles found for your search.")
+                } else {
+                    // Print first article for debugging
+                    if let firstArticle = fetchedArticles.first {
+                        print("First article title: \(firstArticle.title)")
+                    }
+                }
+            }
         }
     }
     
@@ -40,11 +63,23 @@ class NewsViewModel: ObservableObject {
             content: article.content
         )
         
-        try? realm.write {
-            realm.add(newsArticle, update: .modified)
+        do {
+            try realm.write {
+                realm.add(newsArticle, update: .modified)
+            }
+            showAlert("Success", "Article saved successfully!")
+            fetchSavedArticles()
+        } catch {
+            showAlert("Error", "Failed to save article.")
         }
-        fetchSavedArticles()
     }
+    
+    func showAlert(_ title: String, _ message: String) {
+        alertTitle = title
+        alertMessage = message
+        showAlert = true
+    }
+
     
     func fetchSavedArticles() {
         savedArticles = Array(realm.objects(NewsArticle.self))
