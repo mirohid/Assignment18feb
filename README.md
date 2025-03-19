@@ -51,3 +51,11 @@ View: Displays UI components (e.g., NewsListView, SavedArticlesView).
 
 ✨ Contributing
 Feel free to fork the repo and submit pull requests! 😊
+
+
+![1](https://github.com/user-attachments/assets/64abaf1d-9293-40be-b7f6-b8f7c84ef59d)
+
+
+
+
+
