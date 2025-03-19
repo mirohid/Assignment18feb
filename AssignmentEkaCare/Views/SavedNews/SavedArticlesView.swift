@@ -97,3 +97,6 @@ struct SavedArticleCard: View {
     }
 }
 
+#Preview{
+    SavedArticlesView()
+}

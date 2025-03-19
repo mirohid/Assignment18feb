@@ -102,3 +102,7 @@ struct ArticleCard: View {
         )
     }
 }
+
+#Preview{
+    NewsListView()
+}
